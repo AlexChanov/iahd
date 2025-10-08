@@ -18,12 +18,15 @@ import SwiftUI
 
 import SwiftUI
 
+import SwiftUI
+
 struct ContentView: View {
     @State private var currentURL = URL(string: "https://iahd.cc")!
     @State private var isLoading = false
     @State private var canGoBack = false
-    @State private var canGoForward = false
     @State private var showingMenu = false
+    @State private var showingAuth = false
+    @State private var isAuthenticated = false
 
     var body: some View {
         NavigationView {
@@ -32,7 +35,7 @@ struct ContentView: View {
                     url: currentURL,
                     isLoading: $isLoading,
                     canGoBack: $canGoBack,
-                    canGoForward: $canGoForward
+                    canGoForward: .constant(false)
                 )
                 .id(currentURL)
                 .ignoresSafeArea()
@@ -49,13 +52,13 @@ struct ContentView: View {
             .safeAreaInset(edge: .bottom) {
                 CustomBottomBar(
                     canGoBack: canGoBack,
-                    canGoForward: canGoForward,
                     isLoading: isLoading,
+                    isAuthenticated: isAuthenticated,
                     onBack: {
                         NotificationCenter.default.post(name: .goBack, object: nil)
                     },
-                    onForward: {
-                        NotificationCenter.default.post(name: .goForward, object: nil)
+                    onAuth: {
+                        showingAuth = true
                     },
                     onReload: {
                         NotificationCenter.default.post(name: .reload, object: nil)
@@ -64,6 +67,9 @@ struct ContentView: View {
                         showingMenu.toggle()
                     }
                 )
+            }
+            .sheet(isPresented: $showingAuth) {
+                AuthView(isAuthenticated: $isAuthenticated)
             }
             .confirmationDialog("Меню", isPresented: $showingMenu, titleVisibility: .visible) {
                 Button("Главная") {
@@ -99,10 +105,10 @@ struct ContentView: View {
 
 struct CustomBottomBar: View {
     let canGoBack: Bool
-    let canGoForward: Bool
     let isLoading: Bool
+    let isAuthenticated: Bool
     let onBack: () -> Void
-    let onForward: () -> Void
+    let onAuth: () -> Void
     let onReload: () -> Void
     let onMenu: () -> Void
 
@@ -117,9 +123,9 @@ struct CustomBottomBar: View {
             Spacer()
 
             BottomBarButton(
-                icon: "chevron.right",
-                isEnabled: canGoForward,
-                action: onForward
+                icon: isAuthenticated ? "person.fill.checkmark" : "person.circle",
+                isEnabled: true,
+                action: onAuth
             )
 
             Spacer()
@@ -129,7 +135,6 @@ struct CustomBottomBar: View {
                 isEnabled: true,
                 action: onReload
             )
-            .rotationEffect(.degrees(isLoading ? 0 : 0))
 
             Spacer()
 
@@ -143,11 +148,9 @@ struct CustomBottomBar: View {
         .padding(.vertical, 6)
         .background(
             ZStack {
-                // Glassmorphism эффект
-                Color(.orange)
-                    .opacity(0.8)
+                Color(.systemBackground)
+                    .opacity(0.95)
 
-                // Тонкая линия сверху
                 VStack {
                     Divider()
                     Spacer()
