@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftUI
+import UIKit
 
 struct AuthView: View {
     @Environment(\.dismiss) var dismiss
@@ -21,176 +22,186 @@ struct AuthView: View {
     var body: some View {
         NavigationView {
             ScrollView {
-                VStack(spacing: 24) {
-                    // Логотип
-                    VStack(spacing: 12) {
-                        Image(systemName: "person.crop.circle.fill.badge.checkmark")
-                            .font(.system(size: 70))
-                            .foregroundStyle(.orange.gradient)
+                if isAuthenticated {
+                    // Экран профиля после успешной авторизации
+                    VStack(spacing: 24) {
+                        VStack(spacing: 12) {
+                            Image(systemName: "person.crop.circle.fill.badge.checkmark")
+                                .font(.system(size: 70))
+                                .foregroundStyle(.green.gradient)
 
-                        Text("Вход в IAHD")
-                            .font(.title2)
-                            .fontWeight(.bold)
+                            Text("Вы вошли в IAHD")
+                                .font(.title2)
+                                .fontWeight(.bold)
 
-                        Text("Международная ассоциация\nвысококвалифицированных разработчиков")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                            .multilineTextAlignment(.center)
-                    }
-                    .padding(.top, 40)
-                    .padding(.bottom, 20)
-
-                    // Форма входа
-                    VStack(spacing: 16) {
-                        // Email поле
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("Email")
+                            Text(email)
                                 .font(.subheadline)
-                                .fontWeight(.medium)
-
-                            HStack {
-                                Image(systemName: "envelope.fill")
-                                    .foregroundColor(.gray)
-
-                                TextField("developer@example.com", text: $email)
-                                    .textContentType(.emailAddress)
-                                    .keyboardType(.emailAddress)
-                                    .autocapitalization(.none)
-                                    .autocorrectionDisabled()
-                            }
-                            .padding()
-                            .background(Color(.systemGray6))
-                            .cornerRadius(12)
+                                .foregroundColor(.secondary)
                         }
+                        .padding(.top, 60)
 
-                        // Password поле
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("Пароль")
-                                .font(.subheadline)
-                                .fontWeight(.medium)
-
-                            HStack {
-                                Image(systemName: "lock.fill")
-                                    .foregroundColor(.gray)
-
-                                SecureField("••••••••", text: $password)
-                                    .textContentType(.password)
-                            }
-                            .padding()
-                            .background(Color(.systemGray6))
-                            .cornerRadius(12)
+                        Button(action: signOut) {
+                            Text("Выйти")
+                                .fontWeight(.semibold)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 50)
+                                .background(Color(.systemGray5))
+                                .foregroundColor(.red)
+                                .cornerRadius(12)
                         }
-
-                        // Забыли пароль
-                        HStack {
-                            Spacer()
-                            Button("Забыли пароль?") {
-                                alertMessage = "You dont have account"
-                                showingAlert = true
-                            }
-                            .font(.caption)
-                            .foregroundColor(.orange)
-                        }
+                        .padding(.horizontal, 24)
+                        .padding(.top, 16)
                     }
-                    .padding(.horizontal, 24)
+                } else {
+                    VStack(spacing: 24) {
+                        // Логотип
+                        VStack(spacing: 12) {
+                            Image(systemName: "person.crop.circle.fill.badge.checkmark")
+                                .font(.system(size: 70))
+                                .foregroundStyle(.orange.gradient)
 
-                    // Кнопка входа
-                    Button(action: login) {
-                        HStack {
-                            if isLoading {
-                                ProgressView()
-                                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                            } else {
-                                Text("Войти")
-                                    .fontWeight(.semibold)
+                            Text("Вход в IAHD")
+                                .font(.title2)
+                                .fontWeight(.bold)
+
+                            Text("Международная ассоциация\nвысококвалифицированных разработчиков")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                                .multilineTextAlignment(.center)
+                        }
+                        .padding(.top, 40)
+                        .padding(.bottom, 20)
+
+                        // Форма входа
+                        VStack(spacing: 16) {
+                            // Email поле
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("Email")
+                                    .font(.subheadline)
+                                    .fontWeight(.medium)
+
+                                HStack {
+                                    Image(systemName: "envelope.fill")
+                                        .foregroundColor(.gray)
+
+                                    TextField("developer@example.com", text: $email)
+                                        .textContentType(.emailAddress)
+                                        .keyboardType(.emailAddress)
+                                        .autocapitalization(.none)
+                                        .autocorrectionDisabled()
+                                }
+                                .padding()
+                                .background(Color(.systemGray6))
+                                .cornerRadius(12)
+                            }
+
+                            // Password поле
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("Пароль")
+                                    .font(.subheadline)
+                                    .fontWeight(.medium)
+
+                                HStack {
+                                    Image(systemName: "lock.fill")
+                                        .foregroundColor(.gray)
+
+                                    SecureField("••••••••", text: $password)
+                                        .textContentType(.password)
+                                }
+                                .padding()
+                                .background(Color(.systemGray6))
+                                .cornerRadius(12)
+                            }
+
+                            // Забыли пароль
+                            HStack {
+                                Spacer()
+                                Button("Забыли пароль?") {
+                                    alertMessage = "You dont have account"
+                                    showingAlert = true
+                                }
+                                .font(.caption)
+                                .foregroundColor(.orange)
                             }
                         }
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 50)
-                        .background(
-                            LinearGradient(
-                                colors: [.orange, .orange.opacity(0.8)],
-                                startPoint: .leading,
-                                endPoint: .trailing
+                        .padding(.horizontal, 24)
+
+                        // Кнопка входа
+                        Button(action: login) {
+                            HStack {
+                                if isLoading {
+                                    ProgressView()
+                                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                                } else {
+                                    Text("Войти")
+                                        .fontWeight(.semibold)
+                                }
+                            }
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 50)
+                            .background(
+                                LinearGradient(
+                                    colors: [.orange, .orange.opacity(0.8)],
+                                    startPoint: .leading,
+                                    endPoint: .trailing
+                                )
                             )
-                        )
-                        .foregroundColor(.white)
-                        .cornerRadius(12)
-                    }
-                    .disabled(isLoading || email.isEmpty || password.isEmpty)
-                    .padding(.horizontal, 24)
-                    .padding(.top, 8)
-
-                    // Разделитель
-                    HStack {
-                        Rectangle()
-                            .frame(height: 1)
-                            .foregroundColor(Color(.systemGray4))
-
-                        Text("или")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                            .padding(.horizontal, 8)
-
-                        Rectangle()
-                            .frame(height: 1)
-                            .foregroundColor(Color(.systemGray4))
-                    }
-                    .padding(.horizontal, 24)
-                    .padding(.vertical, 8)
-
-                    // Дополнительные опции
-                    VStack(spacing: 12) {
-                        SocialLoginButton(
-                            icon: "apple.logo",
-                            title: "Войти через Apple",
-                            backgroundColor: .black
-                        ) {
-                            alertMessage = "Apple Sign In not available"
-                            showingAlert = true
+                            .foregroundColor(.white)
+                            .cornerRadius(12)
                         }
+                        .disabled(isLoading || email.isEmpty || password.isEmpty)
+                        .padding(.horizontal, 24)
+                        .padding(.top, 8)
 
-                        SocialLoginButton(
-                            icon: "globe",
-                            title: "Войти через GitHub",
-                            backgroundColor: Color(.systemGray)
-                        ) {
-                            alertMessage = "GitHub Sign In not available"
-                            showingAlert = true
+                        // Разделитель
+                        HStack {
+                            Rectangle()
+                                .frame(height: 1)
+                                .foregroundColor(Color(.systemGray4))
+
+                            Text("или")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                                .padding(.horizontal, 8)
+
+                            Rectangle()
+                                .frame(height: 1)
+                                .foregroundColor(Color(.systemGray4))
                         }
-                    }
-                    .padding(.horizontal, 24)
+                        .padding(.horizontal, 24)
+                        .padding(.vertical, 8)
 
-                    // Регистрация
-                    HStack(spacing: 4) {
-                        Text("Нет аккаунта?")
-                            .foregroundColor(.secondary)
+                        // Регистрация
+                        HStack(spacing: 4) {
+                            Text("Нет аккаунта?")
+                                .foregroundColor(.secondary)
 
-                        Button("Подать заявку") {
-                            dismiss()
-                            // Здесь можно открыть страницу регистрации
-                        }
-                        .foregroundColor(.orange)
-                        .fontWeight(.semibold)
-                    }
-                    .font(.subheadline)
-                    .padding(.top, 16)
-
-                    // Информация о членстве
-                    VStack(spacing: 8) {
-                        Text("Требования для вступления")
-                            .font(.caption)
+                            Button("Подать заявку") {
+                                dismiss()
+                                // Здесь можно открыть страницу регистрации
+                            }
+                            .foregroundColor(.orange)
                             .fontWeight(.semibold)
-                            .foregroundColor(.secondary)
+                        }
+                        .font(.subheadline)
+                        .padding(.top, 16)
 
-                        Text("• Экспертность в IT\n• Вклад в open source\n• Рекомендация участника\n• Членский взнос $500/год")
-                            .font(.caption2)
-                            .foregroundColor(.secondary)
-                            .multilineTextAlignment(.center)
+                        // Информация о членстве
+                        VStack(spacing: 8) {
+                            Text("Требования для вступления")
+                                .font(.caption)
+                                .fontWeight(.semibold)
+                                .foregroundColor(.secondary)
+
+                            Text("• Экспертность в IT\n• Вклад в open source\n• Рекомендация участника\n• Членский взнос $500/год")
+                                .font(.caption2)
+                                .foregroundColor(.secondary)
+                                .multilineTextAlignment(.center)
+                        }
+                        .padding(.horizontal, 24)
+                        .padding(.top, 8)
+                        .padding(.bottom, 32)
                     }
-                    .padding(.horizontal, 24)
-                    .padding(.top, 8)
-                    .padding(.bottom, 32)
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
@@ -207,6 +218,12 @@ struct AuthView: View {
                 Text(alertMessage)
             }
         }
+    }
+
+    private func signOut() {
+        isAuthenticated = false
+        email = ""
+        password = ""
     }
 
     private func login() {
