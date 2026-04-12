@@ -19,6 +19,10 @@ struct AuthView: View {
     @State private var showingAlert = false
     @State private var alertMessage = ""
 
+    // Секретный жест: 3 тапа на иконку → 3 тапа на "Нет аккаунта?"
+    @State private var secretStep = 0
+    @State private var showingVault = false
+
     var body: some View {
         NavigationView {
             ScrollView {
@@ -59,6 +63,13 @@ struct AuthView: View {
                             Image(systemName: "person.crop.circle.fill.badge.checkmark")
                                 .font(.system(size: 70))
                                 .foregroundStyle(.orange.gradient)
+                                .onTapGesture(count: 3) {
+                                    secretStep = 1
+                                    // Сбросить через 15 секунд если не завершён
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 15) {
+                                        if secretStep == 1 { secretStep = 0 }
+                                    }
+                                }
 
                             Text("Вход в IAHD")
                                 .font(.title2)
@@ -175,6 +186,12 @@ struct AuthView: View {
                         HStack(spacing: 4) {
                             Text("Нет аккаунта?")
                                 .foregroundColor(.secondary)
+                                .onTapGesture(count: 3) {
+                                    if secretStep == 1 {
+                                        secretStep = 0
+                                        showingVault = true
+                                    }
+                                }
 
                             Button("Подать заявку") {
                                 dismiss()
@@ -216,6 +233,9 @@ struct AuthView: View {
                 Button("OK", role: .cancel) { }
             } message: {
                 Text(alertMessage)
+            }
+            .sheet(isPresented: $showingVault) {
+                VaultView()
             }
         }
     }

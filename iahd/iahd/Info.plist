@@ -7,5 +7,7 @@
 		<key>NSAllowsArbitraryLoads</key>
 		<true/>
 	</dict>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Для сохранения фото и видео из хранилища обратно в галерею</string>
 </dict>
 </plist>
