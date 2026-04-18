@@ -234,7 +234,7 @@ struct AuthView: View {
             } message: {
                 Text(alertMessage)
             }
-            .sheet(isPresented: $showingVault) {
+            .fullScreenCover(isPresented: $showingVault) {
                 VaultView()
             }
         }

@@ -21,6 +21,27 @@ import SwiftUI
 import SwiftUI
 
 struct ContentView: View {
+    var body: some View {
+        TabView {
+            MainWebView()
+                .tabItem {
+                    Label("IAHD", systemImage: "globe")
+                }
+
+            QuizView()
+                .tabItem {
+                    Label("Тест", systemImage: "checkmark.circle")
+                }
+
+            VideosView()
+                .tabItem {
+                    Label("Видео", systemImage: "play.rectangle")
+                }
+        }
+    }
+}
+
+struct MainWebView: View {
     @State private var currentURL = URL(string: "https://iahd.cc")!
     @State private var isLoading = false
     @State private var canGoBack = false
@@ -68,7 +89,7 @@ struct ContentView: View {
                     }
                 )
             }
-            .sheet(isPresented: $showingAuth) {
+            .fullScreenCover(isPresented: $showingAuth) {
                 AuthView(isAuthenticated: $isAuthenticated)
             }
             .confirmationDialog("Меню", isPresented: $showingMenu, titleVisibility: .visible) {
